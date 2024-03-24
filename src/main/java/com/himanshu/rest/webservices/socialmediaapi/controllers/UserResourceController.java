@@ -1,9 +1,13 @@
 package com.himanshu.rest.webservices.socialmediaapi.controllers;
 
+import com.himanshu.rest.webservices.socialmediaapi.exceptions.UserNotFoundException;
 import com.himanshu.rest.webservices.socialmediaapi.models.User;
 import com.himanshu.rest.webservices.socialmediaapi.service.UserDaoService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -21,12 +25,19 @@ public class UserResourceController {
 
     @GetMapping("/users/{id}")
     public User retrieveUser(@PathVariable Integer id) {
-        return userDaoService.findOneById(id);
+        User retrievedUser = userDaoService.findOneById(id);
+        if(retrievedUser == null) throw new UserNotFoundException("ID : " + id);
+        return retrievedUser;
     }
 
     @PostMapping("/users")
-    public void addUser(@RequestBody User user) {
-        userDaoService.save(user);
+    public ResponseEntity<Object> addUser(@RequestBody User user) {
+        User createdUser = userDaoService.save(user);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(createdUser.getId())
+                .toUri();
+        return ResponseEntity.created(location).build();
     }
 
 }
