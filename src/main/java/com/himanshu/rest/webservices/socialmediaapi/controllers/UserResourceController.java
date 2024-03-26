@@ -3,6 +3,7 @@ package com.himanshu.rest.webservices.socialmediaapi.controllers;
 import com.himanshu.rest.webservices.socialmediaapi.exceptions.UserNotFoundException;
 import com.himanshu.rest.webservices.socialmediaapi.models.User;
 import com.himanshu.rest.webservices.socialmediaapi.service.UserDaoService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -36,7 +37,7 @@ public class UserResourceController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<Object> addUser(@RequestBody User user) {
+    public ResponseEntity<Object> addUser(@Valid @RequestBody User user) {
         User createdUser = userDaoService.save(user);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
