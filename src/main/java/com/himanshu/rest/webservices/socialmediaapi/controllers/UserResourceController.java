@@ -4,19 +4,25 @@ import com.himanshu.rest.webservices.socialmediaapi.exceptions.UserNotFoundExcep
 import com.himanshu.rest.webservices.socialmediaapi.models.User;
 import com.himanshu.rest.webservices.socialmediaapi.service.UserDaoService;
 import jakarta.validation.Valid;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Locale;
 
 @RestController
 public class UserResourceController {
     private UserDaoService userDaoService;
+    private MessageSource messageSource;
 
-    public UserResourceController(UserDaoService userDaoService) {
+
+    public UserResourceController(UserDaoService userDaoService, MessageSource messageSource) {
         this.userDaoService = userDaoService;
+        this.messageSource = messageSource;
     }
 
     @GetMapping("/users")
@@ -44,6 +50,12 @@ public class UserResourceController {
                 .buildAndExpand(createdUser.getId())
                 .toUri();
         return ResponseEntity.created(location).build();
+    }
+
+    @GetMapping("/greet-internationalized")
+    public String helloWorldInternationalized() {
+        Locale locale = LocaleContextHolder.getLocale();
+        return messageSource.getMessage("good.morning.message", null, "Default", locale);
     }
 
 }
