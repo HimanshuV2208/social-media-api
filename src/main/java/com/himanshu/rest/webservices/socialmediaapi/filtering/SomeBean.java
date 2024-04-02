@@ -1,14 +1,14 @@
 package com.himanshu.rest.webservices.socialmediaapi.filtering;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonFilter;
 
-@JsonIgnoreProperties("field1")
+//@JsonIgnoreProperties({"field1", "field2"})
+@JsonFilter("SomeBeanFilter")
 public class SomeBean {
 
     private String field1;
 
-    @JsonIgnore
+    //@JsonIgnore
     private String field2; //suppose this is a password
     private String field3;
 
