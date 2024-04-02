@@ -6,6 +6,8 @@ import com.himanshu.rest.webservices.socialmediaapi.service.UserDaoService;
 import jakarta.validation.Valid;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -13,6 +15,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 import java.util.Locale;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 public class UserResourceController {
@@ -31,10 +36,16 @@ public class UserResourceController {
     }
 
     @GetMapping("/users/{id}")
-    public User retrieveUser(@PathVariable Integer id) {
+    public EntityModel<User> retrieveUser(@PathVariable Integer id) {
         User retrievedUser = userDaoService.findOneById(id);
         if(retrievedUser == null) throw new UserNotFoundException("ID : " + id);
-        return retrievedUser;
+
+        EntityModel<User> userEntityModel = EntityModel.of(retrievedUser);
+        WebMvcLinkBuilder linkBuilder = linkTo(methodOn(this.getClass()).retrieveAllUsers());
+
+        userEntityModel.add(linkBuilder.withRel("all-users"));
+
+        return userEntityModel;
     }
 
     @DeleteMapping("/users/{id}")
