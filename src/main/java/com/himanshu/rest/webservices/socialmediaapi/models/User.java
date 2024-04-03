@@ -14,11 +14,13 @@ public class User {
     @Id
     @GeneratedValue
     private Integer id;
-
     @Size(min = 2, message = "Name must be at least 2 characters long")
     private String name;
     @Past(message = "Birth date should be in past")
     private LocalDate birthDate;
+    protected User() {
+
+    }
 
     public User(Integer id, String name, LocalDate birthDate) {
         this.id = id;
