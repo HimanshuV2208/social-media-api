@@ -3,6 +3,7 @@ package com.himanshu.rest.webservices.socialmediaapi.controllers;
 import com.himanshu.rest.webservices.socialmediaapi.exceptions.UserNotFoundException;
 import com.himanshu.rest.webservices.socialmediaapi.models.Post;
 import com.himanshu.rest.webservices.socialmediaapi.models.User;
+import com.himanshu.rest.webservices.socialmediaapi.repositories.PostRepository;
 import com.himanshu.rest.webservices.socialmediaapi.repositories.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.hateoas.EntityModel;
@@ -21,9 +22,11 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RestController
 public class UserJpaResourceController {
     private final UserRepository userRepository;
+    private final PostRepository postRepository;
 
-    public UserJpaResourceController(UserRepository userRepository) {
+    public UserJpaResourceController(UserRepository userRepository, PostRepository postRepository) {
         this.userRepository = userRepository;
+        this.postRepository = postRepository;
     }
 
     @GetMapping("/jpa/users")
@@ -65,6 +68,22 @@ public class UserJpaResourceController {
         if (retrievedUser.isEmpty()) throw new UserNotFoundException("ID : " + id);
 
         return retrievedUser.get().getPosts();
+    }
+
+    @PostMapping("/jpa/users/{id}/posts")
+    public ResponseEntity<Object> addPostForUser(@Valid @RequestBody Post post, @PathVariable Integer id) {
+        Optional<User> retrievedUser = userRepository.findById(id);
+        if (retrievedUser.isEmpty()) throw new UserNotFoundException("ID : " + id);
+
+        post.setUser(retrievedUser.get());
+        Post createdPost = postRepository.save(post);
+
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(createdPost.getId())
+                .toUri();
+        return ResponseEntity.created(location).build();
+
     }
 
 }
