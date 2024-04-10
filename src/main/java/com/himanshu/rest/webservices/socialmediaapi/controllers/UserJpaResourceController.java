@@ -1,9 +1,9 @@
 package com.himanshu.rest.webservices.socialmediaapi.controllers;
 
 import com.himanshu.rest.webservices.socialmediaapi.exceptions.UserNotFoundException;
+import com.himanshu.rest.webservices.socialmediaapi.models.Post;
 import com.himanshu.rest.webservices.socialmediaapi.models.User;
 import com.himanshu.rest.webservices.socialmediaapi.repositories.UserRepository;
-import com.himanshu.rest.webservices.socialmediaapi.service.UserDaoService;
 import jakarta.validation.Valid;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
@@ -20,7 +20,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 public class UserJpaResourceController {
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public UserJpaResourceController(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -57,6 +57,14 @@ public class UserJpaResourceController {
                 .buildAndExpand(createdUser.getId())
                 .toUri();
         return ResponseEntity.created(location).build();
+    }
+
+    @GetMapping("/jpa/users/{id}/posts")
+    public List<Post> retrievePostsForUser(@PathVariable Integer id) {
+        Optional<User> retrievedUser = userRepository.findById(id);
+        if (retrievedUser.isEmpty()) throw new UserNotFoundException("ID : " + id);
+
+        return retrievedUser.get().getPosts();
     }
 
 }
